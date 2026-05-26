@@ -1,0 +1,858 @@
+import { useState, useEffect } from "react";
+
+const C = {
+  charcoal: "#1C1A16", gold: "#C9973E", cream: "#FAF7F2",
+  muted: "#888780", border: "#D3D1C7", white: "#FFFFFF",
+  green: "#1D9E75", greenLight: "#E1F5EE", greenDark: "#085041",
+  goldLight: "#FAEEDA", goldDark: "#633806",
+  coralLight: "#FAECE7", coralDark: "#712B13", coral: "#D85A30",
+};
+
+const clients = [
+  { id:"C001", name:"Sanjay Parekh",   initials:"SP", email:"sanjay@email.com",   phone:"+971-50-000-0001", startDate:"Jan 1, 2021",   total:12, done:12, status:"Active", birthday:"Mar 15", notes:"Long-term client. Completed all sessions. Consider renewal.", color:"#534AB7" },
+  { id:"C002", name:"Odin Dolmark",    initials:"OD", email:"odin@email.com",     phone:"+971-50-000-0002", startDate:"Aug 20, 2025",  total:12, done:4,  status:"Active", birthday:"Jun 22", notes:"Strong momentum in Q4. Follow up on sales pipeline tracker.", color:"#0F6E56" },
+  { id:"C003", name:"Aditi Mehta",     initials:"AM", email:"aditi@email.com",    phone:"+971-50-000-0003", startDate:"Jan 20, 2026",  total:6,  done:2,  status:"Active", birthday:"May 10", notes:"Brand voice work in progress. Schedule marketing review.", color:"#993C1D" },
+  { id:"C004", name:"Muskan Taurani",  initials:"MT", email:"muskan@email.com",   phone:"+971-50-000-0004", startDate:"Feb 27, 2026",  total:9,  done:1,  status:"Active", birthday:"May 27", notes:"Early stage. Niche definition is the priority for next session.", color:"#854F0B" },
+  { id:"C005", name:"Kashish Hemnani",initials:"KH", email:"kashish@email.com",  phone:"+971-50-000-0005", startDate:"May 11, 2026",  total:4,  done:0,  status:"Active", birthday:"Aug 3",  notes:"New client — welcome pack sent. First session scheduled Jun 2.", color:"#185FA5" },
+];
+
+const sessions = [
+  { id:"S001", clientId:"C001", client:"Sanjay Parekh",   date:"Mar 1, 2021",  num:1,  status:"Completed", notes:"Kick-off — goal setting & business model overview." },
+  { id:"S002", clientId:"C001", client:"Sanjay Parekh",   date:"Apr 5, 2021",  num:2,  status:"Completed", notes:"Business model deep-dive & SWOT review." },
+  { id:"S003", clientId:"C002", client:"Odin Dolmark",    date:"Sep 1, 2025",  num:1,  status:"Completed", notes:"Introductory session — vision mapping." },
+  { id:"S004", clientId:"C002", client:"Odin Dolmark",    date:"Oct 6, 2025",  num:2,  status:"Completed", notes:"Q4 strategy & revenue targets set." },
+  { id:"S005", clientId:"C002", client:"Odin Dolmark",    date:"Nov 10, 2025", num:3,  status:"Completed", notes:"Reviewed pipeline tracker progress." },
+  { id:"S006", clientId:"C002", client:"Odin Dolmark",    date:"Dec 15, 2025", num:4,  status:"Completed", notes:"Year-end review & Q1 2026 planning." },
+  { id:"S007", clientId:"C003", client:"Aditi Mehta",     date:"Feb 3, 2026",  num:1,  status:"Completed", notes:"Discovery session — brand positioning." },
+  { id:"S008", clientId:"C003", client:"Aditi Mehta",     date:"Mar 10, 2026", num:2,  status:"Completed", notes:"Marketing channel review." },
+  { id:"S009", clientId:"C004", client:"Muskan Taurani",  date:"Mar 15, 2026", num:1,  status:"Completed", notes:"Onboarding — ICA workshop intro." },
+  { id:"S010", clientId:"C005", client:"Kashish Hemnani", date:"Jun 2, 2026",  num:1,  status:"Scheduled", notes:"First session — welcome & goal setting." },
+  { id:"S011", clientId:"C002", client:"Odin Dolmark",    date:"May 26, 2026", num:5,  status:"Scheduled", notes:"Mid-year check-in." },
+  { id:"S012", clientId:"C003", client:"Aditi Mehta",     date:"May 29, 2026", num:3,  status:"Scheduled", notes:"LinkedIn growth strategy." },
+];
+
+const resources = [
+  { id:"R001", clientId:"C001", client:"Sanjay Parekh",   title:"90-Day Business Plan",    type:"PDF",   desc:"Fillable template for quarterly planning.",  url:"#", date:"Jan 10, 2026" },
+  { id:"R002", clientId:"C001", client:"Sanjay Parekh",   title:"SWOT Analysis Worksheet", type:"PDF",   desc:"Framework for strategic analysis.",          url:"#", date:"Feb 1, 2026" },
+  { id:"R003", clientId:"C002", client:"Odin Dolmark",    title:"Sales Pipeline Tracker",  type:"Excel", desc:"Excel tracker for managing leads.",          url:"#", date:"Mar 5, 2026" },
+  { id:"R004", clientId:"C003", client:"Aditi Mehta",     title:"Brand Voice Guide",       type:"PDF",   desc:"Worksheet to define brand personality.",     url:"#", date:"Mar 20, 2026" },
+  { id:"R005", clientId:"C004", client:"Muskan Taurani",  title:"Goal Setting Framework",  type:"Video", desc:"Video walkthrough of OKR methodology.",      url:"#", date:"Apr 1, 2026" },
+  { id:"R006", clientId:"C005", client:"Kashish Hemnani", title:"Onboarding Welcome Pack", type:"PDF",   desc:"Getting started guide for new clients.",     url:"#", date:"May 20, 2026" },
+];
+
+const goals = [
+  { id:"G001", clientId:"C001", client:"Sanjay Parekh",   title:"Launch new service offering",  status:"Achieved",    target:"Mar 31, 2026", desc:"Define, price and market new consulting package." },
+  { id:"G002", clientId:"C001", client:"Sanjay Parekh",   title:"Hire first team member",        status:"In Progress", target:"Jun 30, 2026", desc:"Recruit and onboard a junior consultant." },
+  { id:"G003", clientId:"C002", client:"Odin Dolmark",    title:"Double monthly revenue",        status:"In Progress", target:"Sep 30, 2026", desc:"Reach AED 50k MRR by Q3 2026." },
+  { id:"G004", clientId:"C003", client:"Aditi Mehta",     title:"Build personal brand online",   status:"Not Started", target:"Aug 31, 2026", desc:"Grow LinkedIn to 5,000 followers." },
+  { id:"G005", clientId:"C004", client:"Muskan Taurani",  title:"Define niche & ideal client",   status:"In Progress", target:"Jul 31, 2026", desc:"Complete ICA workshop and client avatar." },
+  { id:"G006", clientId:"C005", client:"Kashish Hemnani", title:"Create first digital product",  status:"Not Started", target:"Dec 31, 2026", desc:"Build and launch a mini-course." },
+];
+
+const messages = [
+  { id:"M001", clientId:"C001", client:"Sanjay Parekh",   role:"Coach",  text:"Welcome! Please complete the pre-session questionnaire before our next call.",  time:"May 1, 9:00 AM",  read:true },
+  { id:"M002", clientId:"C001", client:"Sanjay Parekh",   role:"Client", text:"Done! Really looking forward to our next session.",                              time:"May 1, 10:30 AM", read:true },
+  { id:"M003", clientId:"C002", client:"Odin Dolmark",    role:"Coach",  text:"Sending over the sales pipeline tracker — let me know if you need a walkthrough.", time:"May 10, 11:00 AM",read:true },
+  { id:"M004", clientId:"C003", client:"Aditi Mehta",     role:"Coach",  text:"Great progress on your goals this month, Aditi! Keep the momentum going.",       time:"May 15, 2:00 PM", read:false },
+  { id:"M005", clientId:"C005", client:"Kashish Hemnani", role:"Coach",  text:"Welcome to Charbon & Co, Kashish! Your onboarding pack has been sent.",          time:"May 20, 9:00 AM", read:false },
+];
+
+const initDocs = {
+  C001:[
+    { id:"D001", category:"Agreement",        title:"Coaching Agreement — Sanjay Parekh",  type:"PDF",  uploadedBy:"Coach", date:"Jan 5, 2021",   desc:"Signed coaching agreement covering scope, fees and confidentiality.", url:"#", signed:true },
+    { id:"D002", category:"Relationship Form", title:"Client Relationship Form",            type:"PDF",  uploadedBy:"Coach", date:"Jan 5, 2021",   desc:"Initial intake form — goals, communication style, availability.", url:"#", signed:true },
+    { id:"D003", category:"Core Values",       title:"Core Values Assessment",              type:"PDF",  uploadedBy:"Client",date:"Jan 12, 2021",  desc:"Completed values ranking exercise from session 1.", url:"#", signed:false },
+    { id:"D004", category:"Core Values",       title:"Personal Mission Statement",          type:"Doc",  uploadedBy:"Client",date:"Feb 3, 2021",   desc:"Drafted during session 2 — refined vision statement.", url:"#", signed:false },
+    { id:"D005", category:"Resources",         title:"90-Day Business Plan Template",       type:"PDF",  uploadedBy:"Coach", date:"Jan 10, 2021",  desc:"Fillable template for quarterly planning.", url:"#", signed:false },
+    { id:"D006", category:"Resources",         title:"SWOT Analysis Worksheet",             type:"PDF",  uploadedBy:"Coach", date:"Feb 1, 2021",   desc:"Completed SWOT — reviewed in session 2.", url:"#", signed:false },
+  ],
+  C002:[
+    { id:"D007", category:"Agreement",        title:"Coaching Agreement — Odin Dolmark",   type:"PDF",  uploadedBy:"Coach", date:"Aug 20, 2025",  desc:"Signed coaching agreement — 12-session programme.", url:"#", signed:true },
+    { id:"D008", category:"Relationship Form", title:"Client Relationship Form",            type:"PDF",  uploadedBy:"Coach", date:"Aug 20, 2025",  desc:"Initial intake — communication prefs, business context.", url:"#", signed:true },
+    { id:"D009", category:"Core Values",       title:"Core Values Assessment",              type:"PDF",  uploadedBy:"Client",date:"Sep 8, 2025",   desc:"Values exercise completed after session 1.", url:"#", signed:false },
+    { id:"D010", category:"Resources",         title:"Sales Pipeline Tracker",              type:"Excel",uploadedBy:"Coach", date:"Mar 5, 2026",   desc:"Excel tracker for managing leads and revenue pipeline.", url:"#", signed:false },
+  ],
+  C003:[
+    { id:"D011", category:"Agreement",        title:"Coaching Agreement — Aditi Mehta",    type:"PDF",  uploadedBy:"Coach", date:"Jan 20, 2026",  desc:"Signed 6-session coaching agreement.", url:"#", signed:true },
+    { id:"D012", category:"Relationship Form", title:"Client Relationship Form",            type:"PDF",  uploadedBy:"Coach", date:"Jan 20, 2026",  desc:"Intake form — branding goals and business background.", url:"#", signed:true },
+    { id:"D013", category:"Core Values",       title:"Core Values Assessment",              type:"PDF",  uploadedBy:"Client",date:"Jan 28, 2026",  desc:"Completed before session 2.", url:"#", signed:false },
+    { id:"D014", category:"Resources",         title:"Brand Voice Guide",                   type:"PDF",  uploadedBy:"Coach", date:"Mar 20, 2026",  desc:"Worksheet to define brand personality and tone.", url:"#", signed:false },
+  ],
+  C004:[
+    { id:"D015", category:"Agreement",        title:"Coaching Agreement — Muskan Taurani", type:"PDF",  uploadedBy:"Coach", date:"Feb 27, 2026",  desc:"Signed 9-session coaching agreement.", url:"#", signed:true },
+    { id:"D016", category:"Relationship Form", title:"Client Relationship Form",            type:"PDF",  uploadedBy:"Coach", date:"Feb 27, 2026",  desc:"Intake form pending full completion.", url:"#", signed:false },
+    { id:"D017", category:"Resources",         title:"Goal Setting Framework",              type:"Video",uploadedBy:"Coach", date:"Apr 1, 2026",   desc:"Video walkthrough of OKR methodology.", url:"#", signed:false },
+  ],
+  C005:[
+    { id:"D018", category:"Agreement",        title:"Coaching Agreement — Kashish Hemnani",type:"PDF",  uploadedBy:"Coach", date:"May 11, 2026",  desc:"Signed 4-session starter agreement.", url:"#", signed:true },
+    { id:"D019", category:"Relationship Form", title:"Client Relationship Form",            type:"PDF",  uploadedBy:"Coach", date:"May 11, 2026",  desc:"Awaiting client completion.", url:"#", signed:false },
+    { id:"D020", category:"Resources",         title:"Onboarding Welcome Pack",             type:"PDF",  uploadedBy:"Coach", date:"May 20, 2026",  desc:"Getting started guide for new clients.", url:"#", signed:false },
+  ],
+};
+
+const CATEGORIES = ["Agreement","Relationship Form","Core Values","Resources","Other"];
+const catIcon = { Agreement:"ti-writing-sign", "Relationship Form":"ti-heart-handshake", "Core Values":"ti-diamond", Resources:"ti-books", Other:"ti-file" };
+const catColor = { Agreement:"#534AB7", "Relationship Form":"#0F6E56", "Core Values":"#C9973E", Resources:"#185FA5", Other:"#888780" };
+const catBg    = { Agreement:"#EEEDFE", "Relationship Form":"#E1F5EE", "Core Values":"#FAEEDA", Resources:"#E6F1FB", Other:"#F1EFE8" };
+const docTypeIcon = { PDF:"ti-file-type-pdf", Excel:"ti-file-spreadsheet", Doc:"ti-file-text", Video:"ti-player-play", Link:"ti-link" };
+const docTypeBg   = { PDF:"#FAECE7", Excel:"#E1F5EE", Doc:"#E6F1FB", Video:"#FAEEDA", Link:"#EEEDFE" };
+const docTypeTxt  = { PDF:"#712B13", Excel:"#085041", Doc:"#0C447C", Video:"#633806", Link:"#3C3489" };
+
+const typeColor = { PDF:"#EEEDFE", Excel:"#E1F5EE", Video:"#FAEEDA", Link:"#FAECE7" };
+const typeText  = { PDF:"#3C3489", Excel:"#085041", Video:"#633806", Link:"#712B13" };
+const statusBg  = { Completed:C.greenLight, Scheduled:C.goldLight, Cancelled:"#F1EFE8", Achieved:C.greenLight, "In Progress":C.goldLight, "Not Started":"#F1EFE8" };
+const statusTxt = { Completed:C.greenDark, Scheduled:C.goldDark, Cancelled:"#444441", Achieved:C.greenDark, "In Progress":C.goldDark, "Not Started":"#444441" };
+
+const s = {
+  app: { fontFamily:"'DM Sans', system-ui, sans-serif", background:C.cream, minHeight:"100vh", display:"flex", justifyContent:"center" },
+  shell: { width:"100%", maxWidth:430, background:C.cream, display:"flex", flexDirection:"column", minHeight:"100vh", position:"relative" },
+  header: { background:C.charcoal, padding:"48px 20px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" },
+  headerTitle: { color:C.cream, fontSize:18, fontWeight:600, letterSpacing:"0.01em" },
+  headerSub: { color:C.muted, fontSize:11, letterSpacing:"0.06em", marginTop:2 },
+  content: { flex:1, overflowY:"auto", paddingBottom:80 },
+  nav: { position:"fixed", bottom:0, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:430, background:C.charcoal, display:"flex", justifyContent:"space-around", padding:"10px 0 20px", zIndex:100 },
+  navItem: (active) => ({ display:"flex", flexDirection:"column", alignItems:"center", gap:3, color: active ? C.gold : C.muted, fontSize:9, fontWeight: active ? 600 : 400, cursor:"pointer", transition:"color 0.15s", padding:"0 8px" }),
+  navIcon: { fontSize:20 },
+  card: { background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10 },
+  pill: (bg, txt) => ({ display:"inline-block", padding:"3px 10px", borderRadius:99, fontSize:10, fontWeight:600, background:bg, color:txt }),
+  initials: (color) => ({ width:42, height:42, borderRadius:"50%", background:color+"22", border:`1.5px solid ${color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, color, flexShrink:0 }),
+  sectionLabel: { fontSize:10, fontWeight:600, color:C.muted, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:8, marginTop:20 },
+  clientRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0", borderBottom:`0.5px solid ${C.border}` },
+  progressBar: (pct, color) => ({ height:4, borderRadius:2, background:`linear-gradient(to right, ${color} ${pct}%, ${C.border} ${pct}%)` }),
+  btn: (primary) => ({ padding:"11px 20px", borderRadius:99, fontSize:13, fontWeight:600, cursor:"pointer", border:"none", background: primary ? C.gold : "transparent", color: primary ? C.charcoal : C.charcoal, border: primary ? "none" : `1px solid ${C.border}` }),
+  input: { width:"100%", padding:"10px 14px", borderRadius:10, border:`1px solid ${C.border}`, fontSize:13, background:C.white, color:C.charcoal, outline:"none", boxSizing:"border-box" },
+  dayBox: (isToday, hasEvent) => ({ width:34, height:34, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight: isToday ? 700 : 400, background: isToday ? C.gold : "transparent", color: isToday ? C.charcoal : hasEvent ? C.gold : C.muted, cursor:"pointer", position:"relative" }),
+};
+
+function Avatar({ client }) {
+  return <div style={s.initials(client.color)}>{client.initials}</div>;
+}
+
+function Badge({ status }) {
+  return <span style={s.pill(statusBg[status], statusTxt[status])}>{status}</span>;
+}
+
+function NavBar({ tab, setTab }) {
+  const tabs = [
+    { id:"home", icon:"ti-home", label:"Home" },
+    { id:"dashboard", icon:"ti-layout-dashboard", label:"Dashboard" },
+    { id:"clients", icon:"ti-users", label:"Clients" },
+    { id:"sessions", icon:"ti-calendar", label:"Sessions" },
+    { id:"resources", icon:"ti-folder", label:"Resources" },
+    { id:"messages", icon:"ti-message-circle", label:"Messages" },
+  ];
+  return (
+    <nav style={s.nav}>
+      {tabs.map(t => (
+        <div key={t.id} style={s.navItem(tab===t.id)} onClick={()=>setTab(t.id)}>
+          <i className={`ti ${t.icon}`} style={s.navIcon} aria-hidden="true"/>
+          <span>{t.label}</span>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+const LOGO = "https://charbonc.com/wp-content/uploads/2025/09/Charbon_Logo_1.webp";
+const CHAREKA_PHOTO = "https://charbonc.com/wp-content/uploads/2025/10/cc-chareka@0.5x.jpg";
+const BRAND = { slate:"#7A8FA3", terra:"#C45A35", cream:"#F5F0E8", creamDark:"#EDE6D9", slateLight:"#EEF2F6" };
+
+function HomeScreen() {
+  const [imgErr, setImgErr] = useState(false);
+  return (
+    <div style={{ background:BRAND.cream, minHeight:"100%" }}>
+
+      {/* Logo bar */}
+      <div style={{ background:BRAND.cream, padding:"20px 20px 12px", borderBottom:`0.5px solid ${BRAND.creamDark}` }}>
+        <img
+          src={LOGO}
+          alt="Charbon & Co"
+          style={{ width:"100%", maxWidth:280, display:"block", margin:"0 auto", height:"auto" }}
+          onError={e=>{ e.target.style.display="none"; }}
+        />
+      </div>
+
+      {/* Chareka hero photo */}
+      <div style={{ position:"relative", overflow:"hidden" }}>
+        {!imgErr ? (
+          <img
+            src={CHAREKA_PHOTO}
+            alt="Chareka, CEO & Founder of Charbon & Co"
+            style={{ width:"100%", height:320, objectFit:"cover", objectPosition:"center top", display:"block" }}
+            onError={()=>setImgErr(true)}
+          />
+        ) : (
+          <div style={{ width:"100%", height:320, background:`linear-gradient(160deg, ${BRAND.slateLight} 0%, ${BRAND.creamDark} 100%)`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <i className="ti ti-user-circle" style={{ fontSize:80, color:BRAND.slate, opacity:0.3 }} aria-hidden="true"/>
+          </div>
+        )}
+        {/* Overlay quote card */}
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, background:"rgba(245,240,232,0.94)", backdropFilter:"blur(4px)", padding:"14px 18px" }}>
+          <div style={{ fontSize:12, fontStyle:"italic", color:BRAND.slate, lineHeight:1.5, marginBottom:4 }}>
+            "The structure comes from the flow,<br/>not the other way around."
+          </div>
+          <div style={{ fontSize:10, fontWeight:600, color:BRAND.terra, letterSpacing:"0.06em" }}>CHAREKA · CEO & FOUNDER</div>
+        </div>
+      </div>
+
+      {/* Tagline + CTA */}
+      <div style={{ background:BRAND.cream, padding:"20px 18px 16px", textAlign:"center" }}>
+        <div style={{ fontSize:22, fontWeight:300, color:BRAND.slate, lineHeight:1.3, marginBottom:4 }}>
+          Transform <span style={{ color:BRAND.terra, fontStyle:"italic" }}>chaos</span> into <span style={{ color:BRAND.terra, fontStyle:"italic" }}>clarity.</span>
+        </div>
+        <div style={{ fontSize:11, color:C.muted, marginBottom:16 }}>Business Bay, Dubai · coach@charbonc.com</div>
+        <div onClick={()=>window.open("https://charbonc.com/20-minute-clarity-chat/","_blank")}
+          style={{ background:BRAND.terra, borderRadius:99, padding:"11px 0", textAlign:"center", fontSize:13, fontWeight:600, color:BRAND.cream, cursor:"pointer" }}>
+          Book your clarity chat →
+        </div>
+      </div>
+
+      <div style={{ padding:"0 16px" }}>
+
+        {/* Three pillars */}
+        <div style={s.sectionLabel}>your pillars</div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:4 }}>
+          {[["ti-user-heart","Co.ach","Guide"],["ti-sparkles","Co.create","Build"],["ti-users","Co.llaborate","Grow"]].map(([icon,label,sub])=>(
+            <div key={label} style={{ background:BRAND.slateLight, border:`0.5px solid ${BRAND.slate}22`, borderRadius:14, padding:"14px 8px", textAlign:"center" }}>
+              <i className={`ti ${icon}`} style={{ fontSize:20, color:BRAND.slate }} aria-hidden="true"/>
+              <div style={{ fontSize:11, fontWeight:600, color:BRAND.slate, marginTop:5 }}>{label}</div>
+              <div style={{ fontSize:9, color:C.muted, marginTop:2 }}>{sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats */}
+        <div style={s.sectionLabel}>at a glance</div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:4 }}>
+          <div style={{ background:BRAND.slateLight, border:`0.5px solid ${BRAND.slate}22`, borderRadius:14, padding:"14px 16px" }}>
+            <div style={{ fontSize:30, fontWeight:700, color:BRAND.slate }}>5</div>
+            <div style={{ fontSize:11, color:C.muted }}>active clients</div>
+          </div>
+          <div style={{ background:"#F9F0EC", border:`0.5px solid ${BRAND.terra}22`, borderRadius:14, padding:"14px 16px" }}>
+            <div style={{ fontSize:30, fontWeight:700, color:BRAND.terra }}>19</div>
+            <div style={{ fontSize:11, color:C.muted }}>sessions done</div>
+          </div>
+        </div>
+
+        {/* Client progress */}
+        <div style={s.sectionLabel}>client progress</div>
+        {clients.map(c => (
+          <div key={c.id} style={{ background:C.white, border:`0.5px solid ${BRAND.creamDark}`, borderRadius:14, padding:"12px 14px", marginBottom:8 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+              <Avatar client={c}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{c.name}</div>
+                <div style={{ fontSize:11, color:C.muted }}>{c.done}/{c.total} sessions</div>
+              </div>
+              <Badge status={c.status}/>
+            </div>
+            <div style={s.progressBar(Math.round(c.done/c.total*100), c.color)}/>
+          </div>
+        ))}
+
+        {/* Links */}
+        <div style={s.sectionLabel}>quick links</div>
+        {[["ti-world","charbonc.com","https://charbonc.com"],["ti-player-play","Claritea podcast series","https://charbonc.com/cwc/"]].map(([icon,label,url])=>(
+          <div key={label} style={{ background:C.white, border:`0.5px solid ${BRAND.creamDark}`, borderRadius:14, padding:"12px 14px", marginBottom:8, display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer" }}
+            onClick={()=>window.open(url,"_blank")}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <i className={`ti ${icon}`} style={{ fontSize:16, color:BRAND.terra }} aria-hidden="true"/>
+              <span style={{ fontSize:13, color:C.charcoal }}>{label}</span>
+            </div>
+            <i className="ti ti-arrow-right" style={{ fontSize:14, color:C.muted }} aria-hidden="true"/>
+          </div>
+        ))}
+        <div style={{ height:8 }}/>
+      </div>
+    </div>
+  );
+}
+
+function DashboardScreen() {
+  const today = new Date();
+  const weekDays = ["M","T","W","T","F","S","S"];
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - ((today.getDay()+6)%7));
+  const weekDates = Array.from({length:7},(_,i)=>{ const d=new Date(startOfWeek); d.setDate(d.getDate()+i); return d; });
+
+  const sessionDates = sessions.filter(s=>s.status==="Scheduled").map(s=>s.date);
+  const todayStr = today.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).replace(/ /g," ");
+
+  const todaySessions = sessions.filter(s => s.status==="Scheduled");
+  const birthdays = clients.filter(c => c.birthday.startsWith(today.toLocaleString("en",{month:"short"})));
+  const overdueClients = clients.filter(c => c.done > 0 && c.id !== "C001");
+
+  return (
+    <div style={{ padding:"0 16px" }}>
+      <div style={{ ...s.card, marginTop:16, marginBottom:0 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+          <div>
+            <div style={{ fontSize:16, fontWeight:600, color:C.charcoal }}>Good morning, Chareka</div>
+            <div style={{ fontSize:11, color:C.muted, marginTop:2 }}>Week of {today.toLocaleDateString("en",{day:"numeric",month:"long",year:"numeric"})}</div>
+          </div>
+          <div style={{ position:"relative" }}>
+            <i className="ti ti-bell" style={{ fontSize:22, color:C.charcoal }} aria-hidden="true"/>
+            <div style={{ position:"absolute", top:-2, right:-2, width:9, height:9, background:C.coral, borderRadius:"50%", border:`1.5px solid ${C.cream}` }}/>
+          </div>
+        </div>
+      </div>
+
+      <div style={s.sectionLabel}>this week</div>
+      <div style={s.card}>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", textAlign:"center", gap:2 }}>
+          {weekDays.map((d,i)=>(
+            <div key={i} style={{ fontSize:10, color:C.muted, paddingBottom:6, fontWeight:500 }}>{d}</div>
+          ))}
+          {weekDates.map((d,i)=>{
+            const isToday = d.toDateString()===today.toDateString();
+            const hasEv = sessions.some(s=>s.status==="Scheduled" && s.date.includes(d.toLocaleDateString("en",{month:"short",day:"numeric"})));
+            return (
+              <div key={i} style={{ display:"flex", justifyContent:"center" }}>
+                <div style={s.dayBox(isToday, hasEv)}>
+                  {d.getDate()}
+                  {hasEv && !isToday && <div style={{ position:"absolute", bottom:2, left:"50%", transform:"translateX(-50%)", width:4, height:4, borderRadius:"50%", background:C.gold }}/>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ borderTop:`0.5px solid ${C.border}`, marginTop:12, paddingTop:12, display:"flex", flexDirection:"column", gap:8 }}>
+          {todaySessions.map(s=>{
+            const cl = clients.find(c=>c.id===s.clientId);
+            return (
+              <div key={s.id} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ width:3, height:32, background:cl.color, borderRadius:2, flexShrink:0 }}/>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:600, color:C.charcoal }}>{s.client}</div>
+                  <div style={{ fontSize:11, color:C.muted }}>Session {s.num} · {s.date}</div>
+                </div>
+                <Badge status={s.status}/>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={s.sectionLabel}>reminders</div>
+
+      {birthdays.length > 0 && birthdays.map(c=>(
+        <div key={c.id} style={{ ...s.card, marginBottom:8 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+            <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+              <i className="ti ti-cake" style={{ fontSize:20, color:C.gold, marginTop:1 }} aria-hidden="true"/>
+              <div>
+                <div style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{c.name}'s birthday</div>
+                <div style={{ fontSize:11, color:C.muted }}>{c.birthday} · Send a message</div>
+              </div>
+            </div>
+            <span style={s.pill(C.goldLight, C.goldDark)}>This month</span>
+          </div>
+        </div>
+      ))}
+
+      <div style={{ ...s.card, marginBottom:8 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+          <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+            <i className="ti ti-send" style={{ fontSize:16, color:C.green, marginTop:1 }} aria-hidden="true"/>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>Follow up · Sanjay Parekh</div>
+              <div style={{ fontSize:11, color:C.muted }}>No session in 3+ weeks</div>
+            </div>
+          </div>
+          <span style={s.pill(C.greenLight, C.greenDark)}>Overdue</span>
+        </div>
+      </div>
+
+      <div style={{ ...s.card, marginBottom:8 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+          <div style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+            <i className="ti ti-notes" style={{ fontSize:16, color:C.coral, marginTop:1 }} aria-hidden="true"/>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>Pending resource · Kashish</div>
+              <div style={{ fontSize:11, color:C.muted }}>Goal setting worksheet not sent yet</div>
+            </div>
+          </div>
+          <span style={s.pill(C.coralLight, C.coralDark)}>Due</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FolderSection({ clientId }) {
+  const [docs, setDocs] = useState(initDocs[clientId] || []);
+  const [openCats, setOpenCats] = useState(["Agreement"]);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ title:"", category:"Agreement", type:"PDF", desc:"", uploadedBy:"Coach" });
+
+  const toggle = (cat) => setOpenCats(prev => prev.includes(cat) ? prev.filter(c=>c!==cat) : [...prev, cat]);
+
+  const addDoc = () => {
+    if (!form.title.trim()) return;
+    const now = new Date().toLocaleDateString("en",{month:"short",day:"numeric",year:"numeric"});
+    setDocs(prev=>[...prev, { id:`D${Date.now()}`, ...form, date:now, signed:false, url:"#" }]);
+    setForm({ title:"", category:"Agreement", type:"PDF", desc:"", uploadedBy:"Coach" });
+    setShowModal(false);
+  };
+
+  return (
+    <div style={{ marginTop:16 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+        <div style={{ fontSize:12, color:C.muted }}>Shared between coach & client</div>
+        <button onClick={()=>setShowModal(true)}
+          style={{ background:C.charcoal, color:C.cream, border:"none", borderRadius:99, padding:"7px 14px", fontSize:12, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
+          <i className="ti ti-plus" style={{ fontSize:13 }} aria-hidden="true"/> Add file
+        </button>
+      </div>
+
+      {CATEGORIES.map(cat=>{
+        const catDocs = docs.filter(d=>d.category===cat);
+        const isOpen = openCats.includes(cat);
+        return (
+          <div key={cat} style={{ marginBottom:10 }}>
+            <div onClick={()=>toggle(cat)}
+              style={{ background:catBg[cat], border:`0.5px solid ${catColor[cat]}33`, borderRadius: isOpen ? "14px 14px 0 0" : 14, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, cursor:"pointer" }}>
+              <div style={{ width:32, height:32, borderRadius:8, background:catColor[cat]+"22", border:`1px solid ${catColor[cat]}44`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <i className={`ti ${catIcon[cat]}`} style={{ fontSize:15, color:catColor[cat] }} aria-hidden="true"/>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{cat}</div>
+                <div style={{ fontSize:10, color:C.muted }}>{catDocs.length} {catDocs.length===1?"file":"files"}</div>
+              </div>
+              <i className={`ti ${isOpen?"ti-chevron-up":"ti-chevron-down"}`} style={{ fontSize:14, color:C.muted }} aria-hidden="true"/>
+            </div>
+
+            {isOpen && (
+              <div style={{ border:`0.5px solid ${catColor[cat]}33`, borderTop:"none", borderRadius:"0 0 14px 14px", overflow:"hidden" }}>
+                {catDocs.length === 0 ? (
+                  <div style={{ padding:"18px 16px", textAlign:"center", color:C.muted, fontSize:12, background:C.white }}>
+                    No files yet — add one using the button above.
+                  </div>
+                ) : catDocs.map((doc, i)=>(
+                  <div key={doc.id} style={{ background:C.white, borderTop: i>0 ? `0.5px solid ${C.border}` : "none", padding:"12px 14px" }}>
+                    <div style={{ display:"flex", alignItems:"flex-start", gap:10 }}>
+                      <div style={{ width:36, height:36, borderRadius:8, background:docTypeBg[doc.type]||"#F1EFE8", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <i className={`ti ${docTypeIcon[doc.type]||"ti-file"}`} style={{ fontSize:16, color:docTypeTxt[doc.type]||C.muted }} aria-hidden="true"/>
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8 }}>
+                          <div style={{ fontSize:13, fontWeight:600, color:C.charcoal, lineHeight:1.3 }}>{doc.title}</div>
+                          {doc.signed && (
+                            <span style={{ background:"#E1F5EE", color:"#085041", fontSize:9, fontWeight:700, padding:"2px 8px", borderRadius:99, flexShrink:0 }}>SIGNED</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize:11, color:C.muted, marginTop:3 }}>{doc.desc}</div>
+                        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <span style={{ fontSize:10, color:C.muted }}>{doc.uploadedBy}</span>
+                            <span style={{ fontSize:10, color:C.border }}>·</span>
+                            <span style={{ fontSize:10, color:C.muted }}>{doc.date}</span>
+                          </div>
+                          <div style={{ display:"flex", gap:6 }}>
+                            <button style={{ background:C.goldLight, color:C.goldDark, border:"none", borderRadius:99, padding:"5px 12px", fontSize:11, fontWeight:600, cursor:"pointer" }}>
+                              <i className="ti ti-eye" style={{ fontSize:11, marginRight:4 }} aria-hidden="true"/>View
+                            </button>
+                            <button style={{ background:C.cream, color:C.muted, border:`0.5px solid ${C.border}`, borderRadius:99, padding:"5px 10px", fontSize:11, cursor:"pointer" }}>
+                              <i className="ti ti-download" style={{ fontSize:11 }} aria-hidden="true"/>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {showModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(28,26,22,0.6)", display:"flex", alignItems:"flex-end", justifyContent:"center", zIndex:200 }}>
+          <div style={{ background:C.cream, borderRadius:"20px 20px 0 0", padding:"24px 20px 40px", width:"100%", maxWidth:430 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ fontSize:16, fontWeight:600, color:C.charcoal }}>Add file to folder</div>
+              <button onClick={()=>setShowModal(false)} style={{ background:"none", border:"none", fontSize:20, color:C.muted, cursor:"pointer", lineHeight:1 }}>
+                <i className="ti ti-x" aria-hidden="true"/>
+              </button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              <div>
+                <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:5 }}>FILE TITLE</div>
+                <input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. Signed coaching agreement" style={s.input}/>
+              </div>
+              <div>
+                <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:5 }}>CATEGORY</div>
+                <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}
+                  style={{ ...s.input, appearance:"none" }}>
+                  {CATEGORIES.map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:5 }}>FILE TYPE</div>
+                  <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} style={{ ...s.input, appearance:"none" }}>
+                    {["PDF","Excel","Doc","Video","Link"].map(t=><option key={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:5 }}>UPLOADED BY</div>
+                  <select value={form.uploadedBy} onChange={e=>setForm({...form,uploadedBy:e.target.value})} style={{ ...s.input, appearance:"none" }}>
+                    <option>Coach</option><option>Client</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:5 }}>DESCRIPTION</div>
+                <input value={form.desc} onChange={e=>setForm({...form,desc:e.target.value})} placeholder="Brief description of the document" style={s.input}/>
+              </div>
+              <button onClick={addDoc}
+                style={{ background:C.charcoal, color:C.cream, border:"none", borderRadius:12, padding:"13px 0", fontSize:14, fontWeight:600, cursor:"pointer", marginTop:4 }}>
+                Add to folder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ClientDetail({ client, onBack }) {
+  const [activeSection, setActiveSection] = useState("overview");
+  const clientSessions  = sessions.filter(s=>s.clientId===client.id);
+  const clientGoals     = goals.filter(g=>g.clientId===client.id);
+  const clientResources = resources.filter(r=>r.clientId===client.id);
+  const clientMessages  = messages.filter(m=>m.clientId===client.id);
+
+  const tabs = ["overview","sessions","goals","folder","messages"];
+
+  return (
+    <div>
+      <div style={{ background:C.charcoal, padding:"48px 20px 20px" }}>
+        <button onClick={onBack} style={{ background:"none", border:"none", color:C.gold, fontSize:13, cursor:"pointer", padding:0, marginBottom:16, display:"flex", alignItems:"center", gap:6 }}>
+          <i className="ti ti-arrow-left" aria-hidden="true"/> Back to clients
+        </button>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div style={{ width:52, height:52, borderRadius:"50%", background:client.color+"33", border:`2px solid ${client.color}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, fontWeight:700, color:client.color }}>{client.initials}</div>
+          <div>
+            <div style={{ fontSize:18, fontWeight:600, color:C.cream }}>{client.name}</div>
+            <div style={{ fontSize:11, color:C.muted, marginTop:2 }}>Since {client.startDate}</div>
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6, marginTop:16, overflowX:"auto", paddingBottom:2 }}>
+          {tabs.map(t=>(
+            <button key={t} onClick={()=>setActiveSection(t)}
+              style={{ background: activeSection===t ? C.gold : "transparent", color: activeSection===t ? C.charcoal : C.muted, border: activeSection===t ? "none" : `0.5px solid ${C.muted}44`, borderRadius:99, padding:"5px 14px", fontSize:11, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap", textTransform:"capitalize", display:"flex", alignItems:"center", gap:5 }}>
+              {t==="folder" && <i className="ti ti-folder" style={{ fontSize:11 }} aria-hidden="true"/>}
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding:"0 16px" }}>
+        {activeSection==="overview" && (
+          <>
+            <div style={{ ...s.card, marginTop:16 }}>
+              <div style={{ fontSize:12, fontWeight:600, color:C.muted, marginBottom:10 }}>SESSION PROGRESS</div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                <span style={{ fontSize:24, fontWeight:700, color:C.charcoal }}>{client.done}<span style={{ fontSize:14, color:C.muted }}>/{client.total}</span></span>
+                <Badge status={client.status}/>
+              </div>
+              <div style={s.progressBar(Math.round(client.done/client.total*100), client.color)}/>
+            </div>
+            <div style={s.card}>
+              {[["ti-mail","Email",client.email],["ti-phone","Phone",client.phone],["ti-calendar","Started",client.startDate],["ti-cake","Birthday",client.birthday]].map(([icon,label,val])=>(
+                <div key={label} style={{ display:"flex", justifyContent:"space-between", padding:"7px 0", borderBottom:`0.5px solid ${C.border}` }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, color:C.muted, fontSize:12 }}>
+                    <i className={`ti ${icon}`} style={{ fontSize:14 }} aria-hidden="true"/> {label}
+                  </div>
+                  <span style={{ fontSize:12, color:C.charcoal }}>{val}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ ...s.card, background:`${client.color}11`, border:`0.5px solid ${client.color}33` }}>
+              <div style={{ fontSize:11, fontWeight:600, color:C.muted, marginBottom:6 }}>COACH NOTES (PRIVATE)</div>
+              <div style={{ fontSize:13, color:C.charcoal, lineHeight:1.6 }}>{client.notes}</div>
+            </div>
+          </>
+        )}
+
+        {activeSection==="sessions" && (
+          <>
+            <div style={{ marginTop:16 }}>
+              {clientSessions.length === 0
+                ? <div style={{ textAlign:"center", color:C.muted, padding:"40px 0", fontSize:13 }}>No sessions yet.</div>
+                : clientSessions.map(s=>(
+                  <div key={s.id} style={s.card||{ ...{background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10} }}>
+                    <div style={{ background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                        <span style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>Session {s.num}</span>
+                        <Badge status={s.status}/>
+                      </div>
+                      <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>{s.date}</div>
+                      <div style={{ fontSize:12, color:C.charcoal }}>{s.notes}</div>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </>
+        )}
+
+        {activeSection==="goals" && (
+          <div style={{ marginTop:16 }}>
+            {clientGoals.map(g=>(
+              <div key={g.id} style={{ background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:C.charcoal, flex:1, paddingRight:8 }}>{g.title}</span>
+                  <Badge status={g.status}/>
+                </div>
+                <div style={{ fontSize:11, color:C.muted, marginBottom:6 }}>Target: {g.target}</div>
+                <div style={{ fontSize:12, color:C.charcoal }}>{g.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeSection==="folder" && <FolderSection clientId={client.id}/>}
+
+        {activeSection==="messages" && (
+          <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:8 }}>
+            {clientMessages.map(m=>(
+              <div key={m.id} style={{ display:"flex", justifyContent: m.role==="Coach" ? "flex-end" : "flex-start" }}>
+                <div style={{ maxWidth:"78%", background: m.role==="Coach" ? C.charcoal : C.white, border:`0.5px solid ${C.border}`, borderRadius: m.role==="Coach" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", padding:"10px 14px" }}>
+                  <div style={{ fontSize:10, color: m.role==="Coach" ? C.gold : C.muted, fontWeight:600, marginBottom:4 }}>{m.role}</div>
+                  <div style={{ fontSize:12, color: m.role==="Coach" ? C.cream : C.charcoal, lineHeight:1.5 }}>{m.text}</div>
+                  <div style={{ fontSize:10, color: m.role==="Coach" ? C.muted : C.muted, marginTop:4, textAlign:"right" }}>{m.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ClientsScreen() {
+  const [selected, setSelected] = useState(null);
+  if (selected) return <ClientDetail client={selected} onBack={()=>setSelected(null)}/>;
+  return (
+    <div style={{ padding:"0 16px" }}>
+      <div style={{ ...s.card, marginTop:16, background:C.charcoal, border:"none" }}>
+        <div style={{ fontSize:11, color:C.gold, fontWeight:600, letterSpacing:"0.06em", marginBottom:4 }}>ACTIVE CLIENTS</div>
+        <div style={{ fontSize:28, fontWeight:700, color:C.cream }}>{clients.length}</div>
+      </div>
+      {clients.map(c=>{
+        const pct = Math.round(c.done/c.total*100);
+        return (
+          <div key={c.id} style={{ ...s.card, cursor:"pointer" }} onClick={()=>setSelected(c)}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+              <Avatar client={c}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:600, color:C.charcoal }}>{c.name}</div>
+                <div style={{ fontSize:11, color:C.muted }}>Since {c.startDate}</div>
+              </div>
+              <i className="ti ti-chevron-right" style={{ fontSize:16, color:C.muted }} aria-hidden="true"/>
+            </div>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+              <span style={{ fontSize:11, color:C.muted }}>{c.done}/{c.total} sessions · {pct}%</span>
+              <Badge status={c.status}/>
+            </div>
+            <div style={s.progressBar(pct, c.color)}/>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SessionsScreen() {
+  const [filter, setFilter] = useState("All");
+  const filters = ["All","Scheduled","Completed"];
+  const shown = filter==="All" ? sessions : sessions.filter(s=>s.status===filter);
+  return (
+    <div style={{ padding:"0 16px" }}>
+      <div style={{ display:"flex", gap:8, marginTop:16, marginBottom:4 }}>
+        {filters.map(f=>(
+          <button key={f} onClick={()=>setFilter(f)}
+            style={{ background: filter===f ? C.charcoal : "transparent", color: filter===f ? C.cream : C.muted, border: filter===f ? "none" : `0.5px solid ${C.border}`, borderRadius:99, padding:"6px 16px", fontSize:12, fontWeight:600, cursor:"pointer" }}>
+            {f}
+          </button>
+        ))}
+      </div>
+      {shown.map(s=>{
+        const cl = clients.find(c=>c.id===s.clientId);
+        return (
+          <div key={s.id} style={{ background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+              <div style={{ width:4, alignSelf:"stretch", background:cl.color, borderRadius:2, flexShrink:0, minHeight:32 }}/>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{s.client}</span>
+                  <Badge status={s.status}/>
+                </div>
+                <div style={{ fontSize:11, color:C.muted, marginTop:2 }}>Session {s.num} · {s.date}</div>
+              </div>
+            </div>
+            <div style={{ fontSize:12, color:C.charcoal, paddingLeft:14 }}>{s.notes}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ResourcesScreen() {
+  const [filter, setFilter] = useState("All");
+  const types = ["All","PDF","Video","Excel"];
+  const shown = filter==="All" ? resources : resources.filter(r=>r.type===filter);
+  return (
+    <div style={{ padding:"0 16px" }}>
+      <div style={{ display:"flex", gap:8, marginTop:16, overflowX:"auto", paddingBottom:4 }}>
+        {types.map(t=>(
+          <button key={t} onClick={()=>setFilter(t)}
+            style={{ background: filter===t ? C.charcoal : "transparent", color: filter===t ? C.cream : C.muted, border: filter===t ? "none" : `0.5px solid ${C.border}`, borderRadius:99, padding:"6px 16px", fontSize:12, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap", flexShrink:0 }}>
+            {t}
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop:8 }}>
+        {shown.map(r=>{
+          const cl = clients.find(c=>c.id===r.clientId);
+          return (
+            <div key={r.id} style={{ background:C.white, border:`0.5px solid ${C.border}`, borderRadius:14, padding:"14px 16px", marginBottom:10 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
+                <span style={{ fontSize:13, fontWeight:600, color:C.charcoal, flex:1, paddingRight:8 }}>{r.title}</span>
+                <span style={s.pill(typeColor[r.type], typeText[r.type])}>{r.type}</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <div style={s.initials(cl.color)}>{cl.initials}</div>
+                <div style={{ fontSize:11, color:C.muted }}>{r.client} · {r.date}</div>
+              </div>
+              <div style={{ fontSize:12, color:C.muted, marginBottom:10 }}>{r.desc}</div>
+              <div style={{ background:C.goldLight, borderRadius:99, padding:"8px 0", textAlign:"center", fontSize:12, fontWeight:600, color:C.goldDark, cursor:"pointer" }}>
+                <i className="ti ti-external-link" style={{ marginRight:6, fontSize:12 }} aria-hidden="true"/> Open resource
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MessagesScreen() {
+  const [selected, setSelected] = useState(null);
+  if (selected) {
+    const cl = clients.find(c=>c.id===selected);
+    const thread = messages.filter(m=>m.clientId===selected);
+    return (
+      <div>
+        <div style={{ background:C.charcoal, padding:"48px 20px 16px" }}>
+          <button onClick={()=>setSelected(null)} style={{ background:"none", border:"none", color:C.gold, fontSize:13, cursor:"pointer", padding:0, marginBottom:12, display:"flex", alignItems:"center", gap:6 }}>
+            <i className="ti ti-arrow-left" aria-hidden="true"/> Messages
+          </button>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <Avatar client={cl}/>
+            <div style={{ fontSize:15, fontWeight:600, color:C.cream }}>{cl.name}</div>
+          </div>
+        </div>
+        <div style={{ padding:"16px 16px 100px", display:"flex", flexDirection:"column", gap:10 }}>
+          {thread.map(m=>(
+            <div key={m.id} style={{ display:"flex", justifyContent: m.role==="Coach" ? "flex-end" : "flex-start" }}>
+              <div style={{ maxWidth:"80%", background: m.role==="Coach" ? C.charcoal : C.white, border:`0.5px solid ${C.border}`, borderRadius: m.role==="Coach" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", padding:"10px 14px" }}>
+                <div style={{ fontSize:11, color: m.role==="Coach" ? C.gold : C.muted, fontWeight:600, marginBottom:4 }}>{m.role}</div>
+                <div style={{ fontSize:13, color: m.role==="Coach" ? C.cream : C.charcoal, lineHeight:1.5 }}>{m.text}</div>
+                <div style={{ fontSize:10, color:C.muted, marginTop:6 }}>{m.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ position:"fixed", bottom:80, left:"50%", transform:"translateX(-50%)", width:"100%", maxWidth:430, padding:"12px 16px", background:C.cream, borderTop:`0.5px solid ${C.border}` }}>
+          <div style={{ display:"flex", gap:8 }}>
+            <input placeholder="Type a message…" style={{ ...s.input, flex:1 }}/>
+            <button style={{ background:C.gold, border:"none", borderRadius:10, padding:"0 16px", cursor:"pointer", color:C.charcoal, fontWeight:600, fontSize:13 }}>Send</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const threads = clients.map(c=>({
+    ...c,
+    lastMsg: messages.filter(m=>m.clientId===c.id).at(-1),
+    unread: messages.filter(m=>m.clientId===c.id && !m.read).length,
+  })).filter(c=>c.lastMsg);
+
+  return (
+    <div style={{ padding:"0 16px" }}>
+      <div style={{ marginTop:16 }}>
+        {threads.map(c=>(
+          <div key={c.id} style={{ ...s.card, cursor:"pointer", display:"flex", alignItems:"center", gap:12 }} onClick={()=>setSelected(c.id)}>
+            <div style={{ position:"relative" }}>
+              <Avatar client={c}/>
+              {c.unread > 0 && <div style={{ position:"absolute", top:-2, right:-2, width:16, height:16, background:C.coral, borderRadius:"50%", fontSize:9, color:C.white, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700 }}>{c.unread}</div>}
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:13, fontWeight:600, color:C.charcoal }}>{c.name}</span>
+                <span style={{ fontSize:10, color:C.muted }}>{c.lastMsg.time}</span>
+              </div>
+              <div style={{ fontSize:12, color:C.muted, marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                {c.lastMsg.role==="Coach" ? "You: " : ""}{c.lastMsg.text}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Header({ tab }) {
+  const titles = { home:null, dashboard:"Dashboard", clients:"My Clients", sessions:"Sessions", resources:"Resources", messages:"Messages" };
+  if (!titles[tab]) return null;
+  return (
+    <div style={s.header}>
+      <div>
+        <div style={s.headerTitle}>{titles[tab]}</div>
+        <div style={s.headerSub}>CHARBON & CO</div>
+      </div>
+      <div style={{ width:36, height:36, borderRadius:"50%", background:C.gold, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, color:C.charcoal }}>C</div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [tab, setTab] = useState("home");
+  useEffect(()=>{
+    const link=document.createElement("link");
+    link.rel="stylesheet";
+    link.href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css";
+    document.head.appendChild(link);
+    const font=document.createElement("link");
+    font.rel="stylesheet";
+    font.href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap";
+    document.head.appendChild(font);
+  },[]);
+
+  return (
+    <div style={s.app}>
+      <div style={s.shell}>
+        <Header tab={tab}/>
+        <div style={s.content}>
+          {tab==="home"      && <HomeScreen/>}
+          {tab==="dashboard" && <DashboardScreen/>}
+          {tab==="clients"   && <ClientsScreen/>}
+          {tab==="sessions"  && <SessionsScreen/>}
+          {tab==="resources" && <ResourcesScreen/>}
+          {tab==="messages"  && <MessagesScreen/>}
+        </div>
+        <NavBar tab={tab} setTab={setTab}/>
+      </div>
+    </div>
+  );
+}
